@@ -1,66 +1,81 @@
 /*Projeto Algotitmo Controle de Estoque - Luiz Henrique Gariglio dos Santos - 2022*/
 #include <iostream>
 #include <stdlib.h>
-#include <list>
+#include <cstring>
 
 using namespace std;
 
 struct Produto
 {
-    string Nome;
-    string Codigo;
+    char Nome[30];
+    char Codigo[10];
     float Quantidade = 0;
     float Custo = 0;
     float Preco = 0;
+};
+
+struct celula
+{
+    struct celula* proximo;
+    struct Produto produto;
+};
+
+struct Fila_Estoque
+{
+    struct celula* inicio;
+    struct celula* fim;
+    int quantidade;
 };
 
 /*Iniciando Funções*/
 
 void Inicio();
 
-void Operacoes_Produtos(list <Produto>& Estoque);
+void IniciarEstoque(struct Fila_Estoque* e);
 
-struct Produto Registro_Produtos();
+void Operacoes_Produtos(struct Fila_Estoque* e);
+    void Registro_Produtos(struct Fila_Estoque* e);
+    void Alterar_Produto(struct Fila_Estoque* e);
 
-void Alterar_Produto(list <Produto>& Estoque);
-
-void Alterar_Estoque(list <Produto>& Estoque);
-
-void Consultar_Estoque(list <Produto> Estoque);
-
-void Mostrar_Estoque(list <Produto> Estoque);
-
-void Buscar_Produto(list <Produto> Estoque);
-
+void Consultar_Estoque(struct Fila_Estoque* e);
+    void Mostrar_Estoque(struct Fila_Estoque* e);
+    void Buscar_Produto(struct Fila_Estoque* e);
+    void Alterar_Estoque(struct Fila_Estoque* e);
 
 
 
 int main()
 {
     int acao = 0;
-    list<Produto> Estoque;
-    list<Produto>::iterator it = Estoque.begin();
+    struct Fila_Estoque* Estoque;
+    Estoque = (Fila_Estoque*)malloc(sizeof(Fila_Estoque));
+    IniciarEstoque(Estoque);
 
     while (acao != 4)
     {
         Inicio();
         cin >> acao;
         if (acao == 1)
-        {           
+        {
             Operacoes_Produtos(Estoque);
 
-        }else if(acao == 2)
+        }
+        else if (acao == 2)
         {
             Alterar_Estoque(Estoque);
 
-        }else if (acao == 3) 
+        }
+        else if (acao == 3)
         {
+
             Consultar_Estoque(Estoque);
-            
-        }else if (acao == 4) 
+
+        }
+        else if (acao == 4)
         {
             cout << "\n\tSaindo ...";
-        }else{
+        }
+        else {
             cout << "\n\tDigite uma entrada valida!";
         }
 
@@ -74,13 +89,20 @@ void Inicio()
     system("clear || cls");
     cout << "\n\tPrograma Controle de Estoque - Luiz Henrique Gariglio dos Santos\n";
     cout << "\n\tDigite o que deseja fazer:\n";
-    cout << "\n\t1 - Produtos;";
+    cout << "\n\t1 - Produto;";
     cout << "\n\t2 - Movimentacoes de Estoque;";
     cout << "\n\t3 - Consultar estoque;";
     cout << "\n\t4 - Sair.\n\n\t";
 }
 
-void Operacoes_Produtos(list <Produto> &Estoque)
+void IniciarEstoque(struct Fila_Estoque* e)
+{
+    e->inicio = NULL;
+    e->fim = NULL;
+    e->quantidade = 0;
+}
+
+void Operacoes_Produtos(struct Fila_Estoque* e)
 {
     int acao_P = 0;
 
@@ -96,12 +118,11 @@ void Operacoes_Produtos(list <Produto> &Estoque)
 
         if (acao_P == 1)
         {
-            Estoque.push_back(Registro_Produtos());
-            cout << "\n\tProduto Registrado!";
+            Registro_Produtos(e);
         }
         else if (acao_P == 2)
         {
-            Alterar_Produto(Estoque);
+            Alterar_Produto(e);
         }
         else if (acao_P == 3)
         {
@@ -110,122 +131,110 @@ void Operacoes_Produtos(list <Produto> &Estoque)
     }
 }
 
-void Alterar_Produto(list <Produto>& Estoque)
+void Registro_Produtos(struct Fila_Estoque* e)
 {
-    list <Produto>::iterator it;
-    string nome, nome_novo;
-    float info;
-    int sair_AP = 0;
-    system("clear || cls");
-    cout << "\n\tDigite o nome ou o codigo do produto que deseja alterar: ";
-    cin >> nome;
-
-    for (it = Estoque.begin(); it != Estoque.end(); ++it)
-    {
-        if (nome == it->Nome || nome == it->Codigo)
-        {
-            cout << "\n\t Nome: " << it->Nome;
-            cout << "\n\t Codigo: " << it->Codigo;
-            cout << "\n\t Quantidade no estoque: " << it->Quantidade;
-            cout << "\n\t Custo do produto: " << it->Custo;
-            cout << "\n\t Preco de venda: " << it->Preco;
-            cout << endl;
-        }
-    }
-
-    for (it = Estoque.begin(); it != Estoque.end(); ++it)
-    {
-        if (nome == it->Nome || nome == it->Codigo)
-        {
-            cout << "\n\n\tDigite as alteracoes";
-            cout << "\n\tDigite o nome do produto: ";
-            cin >> nome_novo;
-            it->Nome = nome_novo;
-            cout << "\n\tDigite o codigo do produto: ";
-            cin >> nome_novo;
-            it->Codigo = nome_novo;
-            cout << "\n\tDigite o custo do produto: ";
-            cin >> info;
-            it->Custo = info;
-            cout << "\n\tDigite o preco do produto: ";
-            cin >> info;
-            it->Preco = info;
-        }
-    }
-    
-    cout << "\n\tAlteracao realizada com sucesso!";
-    cout << "\n\tPressione 1 para sair.";
-    cin >> sair_AP;
-    if (sair_AP == 1)
-    {
-        cout << "\n\tSaindo...";
-    }
-}
-
-struct Produto Registro_Produtos()
-{
-    Produto produto;
+    struct celula* novo;
+    struct Produto novop;
+    novo = (struct celula*)malloc(sizeof(struct celula));
 
     system("clear || cls");
     cout << "\n\tDigite o nome do produto: ";
-    cin >> produto.Nome;
+    cin >> novop.Nome;
     cout << "\n\tDigite o codigo do produto: ";
-    cin >> produto.Codigo;
+    cin >> novop.Codigo;
     cout << "\n\tDigite a quantidade: ";
-    cin >> produto.Quantidade;
+    cin >> novop.Quantidade;
     cout << "\n\tDigite o custo do produto: ";
-    cin >> produto.Custo;
+    cin >> novop.Custo;
     cout << "\n\tDigite o preco do produto: ";
-    cin >> produto.Preco;
-    
-    return produto;
+    cin >> novop.Preco;
+
+    novo->proximo = NULL;
+    novo->produto = novop;
+
+    if (e->quantidade > 0)
+    {
+        e->fim->proximo = novo;
+        e->fim = novo;
+        e->quantidade++;
+    }
+    else
+    {
+        e->inicio = novo;
+        e->fim = novo;
+        e->quantidade++;
+    }
+
 }
 
-void Alterar_Estoque(list <Produto>& Estoque)
+void Alterar_Produto(struct Fila_Estoque* e)
 {
-    list<Produto>::iterator it;
-    string nome;
-    int movimentacao = 0, quantidade = 0;
+    struct celula* aux;
+    aux = e->inicio;
+    char nome[30];
+    int sair_AP = 0;
     system("clear || cls");
-    cout << "\n\tDigite o nome ou o codigo do produto que deseja alterar: ";
-    cin >> nome;
 
-    for (it = Estoque.begin(); it != Estoque.end(); ++it)
+    if (e->quantidade == 0)
     {
-        if (nome == it->Nome || nome == it->Codigo)
-        {
-            while (movimentacao != 1 && movimentacao != 2)
-            {
-                cout << "\n\tSelecione:\n\t1-Entrada\n\t2-Retirada\n\t";
-                cin >> movimentacao;
+        cout << "\n\tNao ha produtos registrados!";
+    }
+    else
+    {
+        cout << "\n\tDigite o nome ou o codigo do produto que deseja alterar: ";
+        cin >> nome;
 
-                if (movimentacao == 1)
-                {
-                    cout << "\n\tDigite a quantidade: ";
-                    cin >> quantidade;
-                    it->Quantidade = it->Quantidade + quantidade;
-                    cout << "\n\tAlteracao realizada com sucesso!";
-                }
-                else if (movimentacao == 2)
-                {
-                    cout << "\n\tDigite a quantidade: ";
-                    cin >> quantidade;
-                    it->Quantidade = it->Quantidade - quantidade;
-                    cout << "\n\tAlteracao realizada com sucesso!";
-                }
-                else
-                {
-                    cout << "\n\tDigite uma entrada valida!";
-                }
+        while (aux != NULL && strcmp(aux->produto.Nome, nome) != 0 && strcmp(aux->produto.Codigo, nome))
+        {
+            aux = aux->proximo;
+        }
+
+        if (aux == NULL)
+        {
+            cout << "\n\tProduto nao encontrado!";
+            cout << "\n\tPressione 1 para sair.\n\t";
+            cin >> sair_AP;
+            if (sair_AP == 1)
+            {
+                cout << "\n\tSaindo...";
+            }
+        }
+        else
+        {
+            //mostra produto antigo
+            cout << "\n\t Nome: " << aux->produto.Nome;
+            cout << "\n\t Codigo: " << aux->produto.Codigo;
+            cout << "\n\t Quantidade no estoque: " << aux->produto.Quantidade;
+            cout << "\n\t Custo do produto: " << aux->produto.Custo;
+            cout << "\n\t Preco de venda: " << aux->produto.Preco;
+            cout << endl;
+
+            //insere e realiza as alterações
+            cout << "\n\n\tDigite as alteracoes";
+            cout << "\n\tDigite o nome do produto: ";
+            cin >> aux->produto.Nome;
+            cout << "\n\tDigite o codigo do produto: ";
+            cin >> aux->produto.Codigo;
+            cout << "\n\tDigite o custo do produto: ";
+            cin >> aux->produto.Custo;
+            cout << "\n\tDigite o preco do produto: ";
+            cin >> aux->produto.Preco;
+
+            cout << "\n\tAlteracao realizada com sucesso!";
+            cout << "\n\tPressione 1 para sair.\n\t";
+            cin >> sair_AP;
+            if (sair_AP == 1)
+            {
+                cout << "\n\tSaindo...";
             }
         }
     }
 }
 
-void Consultar_Estoque(list <Produto> Estoque) 
+void Consultar_Estoque(struct Fila_Estoque* e)
 {
     int acao_E = 0;
-    
+
     while (acao_E != 3)
     {
         system("clear || cls");
@@ -238,12 +247,11 @@ void Consultar_Estoque(list <Produto> Estoque)
 
         if (acao_E == 1)
         {
-            Mostrar_Estoque(Estoque);
+            Mostrar_Estoque(e);
         }
         else if (acao_E == 2)
         {
-            Buscar_Produto(Estoque);
-
+            Buscar_Produto(e);
         }
         else if (acao_E == 3)
         {
@@ -252,55 +260,147 @@ void Consultar_Estoque(list <Produto> Estoque)
     }
 }
 
-void Mostrar_Estoque (list <Produto> Estoque)
+void Mostrar_Estoque(struct Fila_Estoque* e)
 {
-    list<Produto>::iterator it;
     int sair_E = 0;
-
+    struct celula* aux = e->inicio;
     system("clear || cls");
-    for (it = Estoque.begin(); it != Estoque.end(); ++it)
-    {
-        cout << "\n\t Nome: " << it->Nome;
-        cout << "\n\t Codigo: " << it->Codigo;
-        cout << "\n\t Quantidade no estoque: " << it->Quantidade;
-        cout << "\n\t Custo do produto: " << it->Custo;
-        cout << "\n\t Preco de venda: " << it->Preco;
-        cout << endl;
-    }
 
-    cout << "\n\tPressione 1 para sair.";
-    cin >> sair_E;
-    if (sair_E == 1)
+    if (e->quantidade == 0)
     {
-        cout << "\n\tSaindo...";
+        cout << "\n\tNao ha produtos registrados!";
+    }
+    else
+    {
+        do
+        {
+            cout << "\n\t Nome: " << aux->produto.Nome;
+            cout << "\n\t Codigo: " << aux->produto.Codigo;
+            cout << "\n\t Quantidade no estoque: " << aux->produto.Quantidade;
+            cout << "\n\t Custo do produto: " << aux->produto.Custo;
+            cout << "\n\t Preco de venda: " << aux->produto.Preco;
+            cout << endl;
+
+            aux = aux->proximo;
+
+
+        } while (aux != NULL);
+
+        cout << "\n\tPressione 1 para sair.\n\t";
+        cin >> sair_E;
+        if (sair_E == 1)
+        {
+            cout << "\n\tSaindo...";
+        }
     }
 }
 
-void Buscar_Produto (list <Produto> Estoque)
+void Buscar_Produto(struct Fila_Estoque* e)
 {
-    list<Produto>::iterator it;
-    string nome;
-    int sair_E = 0;
     system("clear || cls");
-    cout << "\n\tDigite o nome ou o codigo do produto que deseja buscar: ";
-    cin >> nome;
+    char nome[30];
+    int sair_E = 0;
+    struct celula* aux;
+    aux = e->inicio;
 
-    for (it = Estoque.begin(); it != Estoque.end(); ++it)
+    if (e->quantidade == 0)
     {
-        if (nome == it->Nome || nome == it->Codigo)
+        cout << "\n\tNao ha produtos registrados!";
+    }
+    else
+    {
+        cout << "\n\tDigite o nome ou o codigo do produto que deseja buscar: ";
+        cin >> nome;
+
+        while (aux != NULL && strcmp(aux->produto.Nome, nome) != 0 && strcmp(aux->produto.Codigo, nome) != 0)
         {
-            cout << "\n\t Nome: " << it->Nome;
-            cout << "\n\t Codigo: " << it->Codigo;
-            cout << "\n\t Quantidade no estoque: " << it->Quantidade;
-            cout << "\n\t Custo do produto: " << it->Custo;
-            cout << "\n\t Preco de venda: " << it->Preco;
+            aux = aux->proximo;
+        }
+        if (aux == NULL)
+        {
+            cout << "\n\tProduto não encontrado!";
+        }
+        else
+        {
+            cout << "\n\t Nome: " << aux->produto.Nome;
+            cout << "\n\t Codigo: " << aux->produto.Codigo;
+            cout << "\n\t Quantidade no estoque: " << aux->produto.Quantidade;
+            cout << "\n\t Custo do produto: " << aux->produto.Custo;
+            cout << "\n\t Preco de venda: " << aux->produto.Preco;
             cout << endl;
         }
+        cout << "\n\tPressione 1 para sair.\n\t";
+        cin >> sair_E;
+        if (sair_E == 1)
+        {
+            cout << "\n\tSaindo...";
+        }
     }
-    cout << "\n\tPressione 1 para sair.";
-    cin >> sair_E;
-    if (sair_E == 1)
+}
+
+void Alterar_Estoque(struct Fila_Estoque* e)
+{
+    int movimentacao = 0, quantidade = 0;
+
+    system("clear || cls");
+    char nome[30];
+    int sair_E = 0;
+    struct celula* aux;
+    aux = e->inicio;
+
+    if (e->quantidade == 0)
     {
-        cout << "\n\tSaindo...";
+        cout << "\n\tNao ha produtos registrados!";
     }
+    else
+    {
+        cout << "\n\tDigite o nome ou o codigo do produto que deseja alterar: ";
+        cin >> nome;
+
+        while (aux != NULL && strcmp(aux->produto.Nome, nome) != 0 && strcmp(aux->produto.Codigo, nome) != 0)
+        {
+            aux = aux->proximo;
+        }
+        if (aux == NULL)
+        {
+            cout << "\n\tProduto não encontrado!";
+        }
+        else
+        {
+            while (movimentacao != 1 && movimentacao != 2)
+            {
+                cout << "\n\tSelecione:\n\t1-Entrada\n\t2-Retirada\n\t";
+                cin >> movimentacao;
+
+                if (movimentacao == 1)
+                {
+                    cout << "\n\tRealizar entrada em " << aux->produto.Nome;
+                    cout << "\n\tDigite a quantidade: ";
+                    cin >> quantidade;
+                    aux->produto.Quantidade = aux->produto.Quantidade + quantidade;
+                    cout << "\n\tAlteracao realizada com sucesso!";
+                }
+                else if (movimentacao == 2)
+                {
+                    cout << "\n\tRealizar retirada em " << aux->produto.Nome;
+                    cout << "\n\tDigite a quantidade: ";
+                    cin >> quantidade;
+                    aux->produto.Quantidade = aux->produto.Quantidade - quantidade;
+                    cout << "\n\tAlteracao realizada com sucesso!";
+                }
+                else
+                {
+                    cout << "\n\tDigite uma entrada valida!";
+                }
+            }
+        }
+
+        cout << "\n\tPressione 1 para sair.\n\t";
+        cin >> sair_E;
+        if (sair_E == 1)
+        {
+            cout << "\n\tSaindo...";
+        }
+    }
+
 }
