@@ -63,15 +63,16 @@ void IniciarEstoque(struct Fila_Estoque* e);
 
 void IniciarVenda(struct Pilha_Venda* v);
 
-    void Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e);
+    float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e);
         float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda);
         float Remove_Produto_Venda(struct Pilha_Venda* v, float total_venda);
         void Mostrar_Venda(struct Pilha_Venda* v, float total_venda);
-
+        void Remove_Venda_Estoque(struct Pilha_Venda* v, struct Fila_Estoque* e);
 
 int main()
 {
     int acao = 0;
+    float Saldo = 0;
     struct Fila_Estoque* Estoque;
     Estoque = (Fila_Estoque*)malloc(sizeof(Fila_Estoque));
     IniciarEstoque(Estoque);
@@ -102,7 +103,8 @@ int main()
         }
         else if (acao == 4)
         {
-            Realizar_Venda(Venda, Estoque);
+            Saldo = Saldo + Realizar_Venda(Venda, Estoque);
+            Remove_Venda_Estoque(Venda, Estoque);
             IniciarVenda(Venda);
         }
         else if (acao == 5)
@@ -454,7 +456,7 @@ void Alterar_Estoque(struct Fila_Estoque* e)
 
 /* Funções para etapa de venda */
 
-void Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
+float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
 {
     system("clear || cls");
     cout << "\n\tNova venda";
@@ -480,6 +482,7 @@ void Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
         else if (acao == 2)
         {
             cout << "\n\tSaindo ...";
+            return total_venda;
         }
         else if (acao == 3)
         {
@@ -577,4 +580,27 @@ void Mostrar_Venda(struct Pilha_Venda* v, float total_venda)
     } 
 
     cout << "\n\n\t\t Total venda: " << total_venda << endl;
+}
+
+void Remove_Venda_Estoque(struct Pilha_Venda* v, struct Fila_Estoque* e)
+{
+    if (v->quantidade != 0)
+    {
+        struct celula* aux;
+        aux = e->inicio;
+        struct celula_venda* aux2;
+        aux2 = v->topo;
+        int i = 0;
+
+        while (aux2 != NULL)
+        {
+            while (strcmp(aux->produto.Nome, aux2->item.Nome) != 0)
+            {
+                aux = aux->proximo;
+            }
+            aux->produto.Quantidade = aux->produto.Quantidade - aux2->item.Quantidade;
+            aux2 = aux2->proximo;
+        }
+    }   
+
 }
