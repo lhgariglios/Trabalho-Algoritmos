@@ -27,21 +27,46 @@ struct Fila_Estoque
     int quantidade;
 };
 
+struct produto_venda 
+{
+    char Nome[30];
+    char Codigo[10];
+    float Quantidade = 0;
+    float Preco = 0;
+    float total = 0;
+};
+
+struct celula_venda {
+    struct celula_venda* proximo;
+    struct produto_venda item;
+};
+
+struct Pilha_Venda {
+    struct celula_venda* topo;
+    int quantidade;
+};
+
 /*Iniciando Funções*/
 
 void Inicio();
 
 void IniciarEstoque(struct Fila_Estoque* e);
 
-void Operacoes_Produtos(struct Fila_Estoque* e);
-    void Registro_Produtos(struct Fila_Estoque* e);
-    void Alterar_Produto(struct Fila_Estoque* e);
+    void Operacoes_Produtos(struct Fila_Estoque* e);
+        void Registro_Produtos(struct Fila_Estoque* e);
+        void Alterar_Produto(struct Fila_Estoque* e);
 
-void Consultar_Estoque(struct Fila_Estoque* e);
-    void Mostrar_Estoque(struct Fila_Estoque* e);
-    void Buscar_Produto(struct Fila_Estoque* e);
-    void Alterar_Estoque(struct Fila_Estoque* e);
+    void Consultar_Estoque(struct Fila_Estoque* e);
+        void Mostrar_Estoque(struct Fila_Estoque* e);
+        void Buscar_Produto(struct Fila_Estoque* e);
+        void Alterar_Estoque(struct Fila_Estoque* e);
 
+void IniciarVenda(struct Pilha_Venda* v);
+
+    void Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e);
+        float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda);
+        float Remove_Produto_Venda(struct Pilha_Venda* v, float total_venda);
+        void Mostrar_Venda(struct Pilha_Venda* v, float total_venda);
 
 
 int main()
@@ -51,7 +76,11 @@ int main()
     Estoque = (Fila_Estoque*)malloc(sizeof(Fila_Estoque));
     IniciarEstoque(Estoque);
 
-    while (acao != 4)
+    struct Pilha_Venda* Venda;
+    Venda = (Pilha_Venda*)malloc(sizeof(Pilha_Venda));
+    IniciarVenda(Venda);
+
+    while (acao != 5)
     {
         Inicio();
         cin >> acao;
@@ -73,6 +102,11 @@ int main()
         }
         else if (acao == 4)
         {
+            Realizar_Venda(Venda, Estoque);
+            IniciarVenda(Venda);
+        }
+        else if (acao == 5)
+        {
             cout << "\n\tSaindo ...";
         }
         else {
@@ -84,6 +118,8 @@ int main()
 }
 
 /*Funções*/
+
+/* Funções para iniciar o programa, pilhas e filas */
 void Inicio()
 {
     system("clear || cls");
@@ -92,7 +128,14 @@ void Inicio()
     cout << "\n\t1 - Produto;";
     cout << "\n\t2 - Movimentacoes de Estoque;";
     cout << "\n\t3 - Consultar estoque;";
-    cout << "\n\t4 - Sair.\n\n\t";
+    cout << "\n\t4 - Realizar venda;";
+    cout << "\n\t5 - Sair.\n\n\t";
+}
+
+void IniciarVenda(struct Pilha_Venda* v)
+{
+    v->topo = NULL;
+    v->quantidade = 0;
 }
 
 void IniciarEstoque(struct Fila_Estoque* e)
@@ -101,6 +144,8 @@ void IniciarEstoque(struct Fila_Estoque* e)
     e->fim = NULL;
     e->quantidade = 0;
 }
+
+/* Funções para inserir e alterar produtos */
 
 void Operacoes_Produtos(struct Fila_Estoque* e)
 {
@@ -230,6 +275,8 @@ void Alterar_Produto(struct Fila_Estoque* e)
         }
     }
 }
+
+/* Funções para buscar e mostrar produtos no estoque e alterar quantidade no estoque */
 
 void Consultar_Estoque(struct Fila_Estoque* e)
 {
@@ -403,4 +450,131 @@ void Alterar_Estoque(struct Fila_Estoque* e)
         }
     }
 
+}
+
+/* Funções para etapa de venda */
+
+void Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
+{
+    system("clear || cls");
+    cout << "\n\tNova venda";
+    
+    int acao = 0;
+    float total_venda = 0;
+
+    while (acao != 2)
+    {
+
+        if (v->quantidade != 0)
+        {
+           Mostrar_Venda(v, total_venda);
+        }
+
+        cout << "\n\t1-Novo Produto\n\t2-Finalizar venda\n\t3-Excluir ultimo produto\n\t";
+        cin >> acao;
+
+        if (acao == 1)
+        {
+            total_venda = Insere_Produto_Venda(v, e, total_venda);
+        }
+        else if (acao == 2)
+        {
+            cout << "\n\tSaindo ...";
+        }
+        else if (acao == 3)
+        {
+            total_venda = Remove_Produto_Venda(v, total_venda);
+        }
+        else {
+            cout << "\n\tDigite uma entrada valida!";
+        }
+
+    }
+}
+
+float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda)
+{
+    struct celula_venda* novo = NULL;
+    novo = (struct celula_venda*)malloc(sizeof(struct celula_venda));
+
+    struct celula* aux;
+    aux = e->inicio;
+
+    char nome[30];
+
+    cout << "\n\tDigite o nome ou codigo do protudo:";
+    cin >> nome;
+
+    while (aux != NULL && strcmp(aux->produto.Nome, nome) != 0 && strcmp(aux->produto.Codigo, nome) != 0)
+    {
+        aux = aux->proximo;
+    }
+
+    if (aux == NULL)
+    {
+        cout << "\n\tProduto não encontrado!";
+    }
+    else
+    {
+        strcpy_s(novo->item.Nome, aux->produto.Nome);
+        strcpy_s(novo->item.Codigo, aux->produto.Codigo);
+        cout << "\n\tDigite a Quantidade: ";
+        cin >> novo->item.Quantidade;
+        novo->item.Preco = aux->produto.Preco;
+        novo->item.total = novo->item.Quantidade * novo->item.Preco;
+        total_venda = total_venda + novo->item.total;
+
+        v->quantidade++;
+
+        if (v->quantidade == 0)
+        {
+            novo->proximo = NULL;
+            v->topo = novo;
+        }
+        else
+        {
+            novo->proximo = v->topo;
+            v->topo = novo;
+        }
+    }
+    return total_venda;
+}
+
+float Remove_Produto_Venda(struct Pilha_Venda* v, float total_venda)
+{
+    struct celula_venda* aux;
+    aux = v->topo;
+    cout << aux->item.total;
+    total_venda = total_venda - aux->item.total;
+    v->topo = v->topo->proximo;
+    free(aux);
+    v->quantidade--;
+    return total_venda;
+}
+
+void Mostrar_Venda(struct Pilha_Venda* v, float total_venda)
+{
+    system("clear || cls");
+    cout << "\n\n\t***** Produtos *****";
+
+    //struct Pilha_Venda* p_aux = NULL;
+    //p_aux = (struct Pilha_Venda*)malloc(sizeof(struct Pilha_Venda));
+    //IniciarVenda(p_aux);
+
+    struct celula_venda* aux;
+    aux = v->topo;
+    int i = 0;
+
+    while (i < v->quantidade)
+    {
+        i++;
+        cout << "\n\t" << i << " - Nome: " << aux->item.Nome;
+        cout << "\t|\tQuantidade: " << aux->item.Quantidade;
+        cout << "\t|\tPreco: " << aux->item.Preco;
+        cout << "\t|\tValor: " << aux->item.total;
+
+        aux = aux->proximo;
+    } 
+
+    cout << "\n\n\t\t Total venda: " << total_venda << endl;
 }
