@@ -27,7 +27,7 @@ struct Fila_Estoque
     int quantidade;
 };
 
-struct produto_venda 
+struct produto_venda
 {
     char Nome[30];
     char Codigo[10];
@@ -52,36 +52,41 @@ void Inicio();
 
 void IniciarEstoque(struct Fila_Estoque* e);
 
-    void Operacoes_Produtos(struct Fila_Estoque* e);
-        void Registro_Produtos(struct Fila_Estoque* e);
-        void Alterar_Produto(struct Fila_Estoque* e);
+void Operacoes_Produtos(struct Fila_Estoque* e);
+void Registro_Produtos(struct Fila_Estoque* e);
+void Alterar_Produto(struct Fila_Estoque* e);
 
-    void Consultar_Estoque(struct Fila_Estoque* e);
-        void Mostrar_Estoque(struct Fila_Estoque* e);
-        void Buscar_Produto(struct Fila_Estoque* e);
-        void Alterar_Estoque(struct Fila_Estoque* e);
+void Consultar_Estoque(struct Fila_Estoque* e);
+void Mostrar_Estoque(struct Fila_Estoque* e);
+void Buscar_Produto(struct Fila_Estoque* e);
+void Alterar_Estoque(struct Fila_Estoque* e);
 
 void IniciarVenda(struct Pilha_Venda* v);
 
-    float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e);
-        float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda);
-        float Remove_Produto_Venda(struct Pilha_Venda* v, float total_venda);
-        void Mostrar_Venda(struct Pilha_Venda* v, float total_venda);
-        void Remove_Venda_Estoque(struct Pilha_Venda* v, struct Fila_Estoque* e);
+float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e);
+float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda);
+float Remove_Produto_Venda(struct Pilha_Venda* v, float total_venda);
+void Mostrar_Venda(struct Pilha_Venda* v, float total_venda);
+void Remove_Venda_Estoque(struct Pilha_Venda* v, struct Fila_Estoque* e);
+
+void Fazer_Backup(struct Fila_Estoque* e, struct Fila_Estoque* b);
 
 int main()
 {
-    int acao = 0;
+    int acao = 0, sair = 0;
     float Saldo = 0;
     struct Fila_Estoque* Estoque;
     Estoque = (Fila_Estoque*)malloc(sizeof(Fila_Estoque));
     IniciarEstoque(Estoque);
 
+    struct Fila_Estoque* Backup;
+    Backup = (Fila_Estoque*)malloc(sizeof(Fila_Estoque));
+
     struct Pilha_Venda* Venda;
     Venda = (Pilha_Venda*)malloc(sizeof(Pilha_Venda));
     IniciarVenda(Venda);
 
-    while (acao != 5)
+    while (acao != 8)
     {
         Inicio();
         cin >> acao;
@@ -109,6 +114,22 @@ int main()
         }
         else if (acao == 5)
         {
+            Fazer_Backup(Estoque, Backup);
+        }
+        else if (acao == 6)
+        {
+            Mostrar_Estoque(Backup);
+        }
+        else if (acao == 7)
+        {
+            cout << "\n\tO Saldo e de: " << Saldo << " reais.";
+            cout << "\n\tPressione 1 para sair.\n\t";
+            cin >> sair;
+            cout << "\n\tSaindo...";
+
+        }
+        else if (acao == 8)
+        {
             cout << "\n\tSaindo ...";
         }
         else {
@@ -131,7 +152,10 @@ void Inicio()
     cout << "\n\t2 - Movimentacoes de Estoque;";
     cout << "\n\t3 - Consultar estoque;";
     cout << "\n\t4 - Realizar venda;";
-    cout << "\n\t5 - Sair.\n\n\t";
+    cout << "\n\t5 - Realizar backup;";
+    cout << "\n\t6 - Mostrar backup;";
+    cout << "\n\t7 - Mostrar saldo;";
+    cout << "\n\t8 - Sair.\n\n\t";
 }
 
 void IniciarVenda(struct Pilha_Venda* v)
@@ -312,6 +336,7 @@ void Consultar_Estoque(struct Fila_Estoque* e)
 void Mostrar_Estoque(struct Fila_Estoque* e)
 {
     int sair_E = 0;
+    int i = 0;
     struct celula* aux = e->inicio;
     system("clear || cls");
 
@@ -321,7 +346,7 @@ void Mostrar_Estoque(struct Fila_Estoque* e)
     }
     else
     {
-        do
+        while(i < e->quantidade)
         {
             cout << "\n\t Nome: " << aux->produto.Nome;
             cout << "\n\t Codigo: " << aux->produto.Codigo;
@@ -331,9 +356,9 @@ void Mostrar_Estoque(struct Fila_Estoque* e)
             cout << endl;
 
             aux = aux->proximo;
+            i++;
 
-
-        } while (aux != NULL);
+        } 
 
         cout << "\n\tPressione 1 para sair.\n\t";
         cin >> sair_E;
@@ -460,7 +485,7 @@ float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
 {
     system("clear || cls");
     cout << "\n\tNova venda";
-    
+
     int acao = 0;
     float total_venda = 0;
 
@@ -469,7 +494,7 @@ float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
 
         if (v->quantidade != 0)
         {
-           Mostrar_Venda(v, total_venda);
+            Mostrar_Venda(v, total_venda);
         }
 
         cout << "\n\t1-Novo Produto\n\t2-Finalizar venda\n\t3-Excluir ultimo produto\n\t";
@@ -482,7 +507,6 @@ float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
         else if (acao == 2)
         {
             cout << "\n\tSaindo ...";
-            return total_venda;
         }
         else if (acao == 3)
         {
@@ -493,6 +517,8 @@ float Realizar_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e)
         }
 
     }
+
+    return total_venda;
 }
 
 float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float total_venda)
@@ -525,6 +551,7 @@ float Insere_Produto_Venda(struct Pilha_Venda* v, struct Fila_Estoque* e, float 
         cin >> novo->item.Quantidade;
         novo->item.Preco = aux->produto.Preco;
         novo->item.total = novo->item.Quantidade * novo->item.Preco;
+        novo->proximo = NULL;
         total_venda = total_venda + novo->item.total;
 
         v->quantidade++;
@@ -577,30 +604,75 @@ void Mostrar_Venda(struct Pilha_Venda* v, float total_venda)
         cout << "\t|\tValor: " << aux->item.total;
 
         aux = aux->proximo;
-    } 
+    }
 
     cout << "\n\n\t\t Total venda: " << total_venda << endl;
 }
 
 void Remove_Venda_Estoque(struct Pilha_Venda* v, struct Fila_Estoque* e)
 {
+    int i = 0;
+    cout << v->quantidade;
     if (v->quantidade != 0)
     {
         struct celula* aux;
-        aux = e->inicio;
+        aux = (struct celula*)malloc(sizeof(struct celula));
+        
         struct celula_venda* aux2;
+        aux2 = (struct celula_venda*)malloc(sizeof(struct celula_venda));
         aux2 = v->topo;
         int i = 0;
-
-        while (aux2 != NULL)
+        while (i < v->quantidade)
         {
+            aux = e->inicio;
             while (strcmp(aux->produto.Nome, aux2->item.Nome) != 0)
             {
                 aux = aux->proximo;
             }
             aux->produto.Quantidade = aux->produto.Quantidade - aux2->item.Quantidade;
             aux2 = aux2->proximo;
-        }
-    }   
+            i++;
+        } 
+    }
+}
 
+void Fazer_Backup(struct Fila_Estoque* e, struct Fila_Estoque* b )
+{
+    int i = 0;
+    struct Produto p;
+    struct celula* aux;
+    aux = (struct celula*)malloc(sizeof(struct celula));
+    aux = e->inicio;
+    
+    IniciarEstoque(b);
+    
+    while (i < e->quantidade)
+    {
+        struct celula* aux2;
+        aux2 = (struct celula*)malloc(sizeof(struct celula));
+
+        strcpy_s(p.Nome,aux->produto.Nome);
+        strcpy_s(p.Codigo, aux->produto.Codigo);
+        p.Custo = aux->produto.Custo;
+        p.Preco = aux->produto.Preco;
+        p.Quantidade = aux->produto.Quantidade;
+
+        aux2->produto = p;
+        aux2->proximo = NULL;
+        
+        if (b->quantidade > 0)
+        {
+            b->fim->proximo = aux2;
+            b->fim = aux2;
+            b->quantidade++;
+        }
+        else
+        {
+            b->inicio = aux2;
+            b->fim = aux2;
+            b->quantidade++;
+        }
+        aux = aux->proximo;
+        i++;        
+    } 
 }
